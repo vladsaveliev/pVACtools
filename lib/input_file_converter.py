@@ -4,6 +4,7 @@ import sys
 import re
 from abc import ABCMeta
 from collections import OrderedDict
+import lib.utils
 
 class InputFileConverter(metaclass=ABCMeta):
     def __init__(self, **kwargs):
@@ -183,7 +184,11 @@ class VcfConverter(InputFileConverter):
                         coverage[variant_type] = {}
                     coverage[variant_type][data_type] = self.parse_bam_readcount_file(coverage_file)
 
-        reader = open(self.input_file, 'r')
+        if lib.utils.is_gz_file(self.input_file):
+            mode = 'rb'
+        else:
+            mode = 'r'
+        reader = open(self.input_file, mode)
         vcf_reader = vcf.Reader(reader)
         if len(vcf_reader.samples) > 1:
             sys.exit('ERROR: VCF file contains more than one sample')

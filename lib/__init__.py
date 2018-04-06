@@ -11,6 +11,7 @@ __all__ = [
     "netmhc_stab",
     "filter",
     "top_score_filter",
+    "utils",
 ]
 
 import os
