@@ -265,6 +265,8 @@ class VcfConverter(InputFileConverter):
                     consequence = self.resolve_consequence(transcript['Consequence'])
                     if consequence is None:
                         continue
+                    if consequence != 'missense':
+                        continue
                     elif consequence == 'FS':
                         if transcript['DownstreamProtein'] == '':
                             continue
