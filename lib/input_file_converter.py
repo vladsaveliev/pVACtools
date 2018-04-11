@@ -212,6 +212,10 @@ class VcfConverter(InputFileConverter):
                     #The genotype is uncalled or hom_ref
                     continue
 
+            filt = entry.FILTER
+            if not (filt is None or len(filt) == 0):
+                continue
+
             alleles_dict = self.resolve_alleles(entry)
             for alt in alts:
                 alt = str(alt)
