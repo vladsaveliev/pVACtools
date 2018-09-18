@@ -12,7 +12,6 @@ csv.field_size_limit(sys.maxsize)
 class FastaGenerator(metaclass=ABCMeta):
     def __init__(self, **kwargs):
         self.input_file                 = kwargs['input_file']
-        self.peptide_sequence_length    = kwargs['peptide_sequence_length']
         self.epitope_length             = kwargs['epitope_length']
         self.output_file                = kwargs['output_file']
         self.output_key_file            = kwargs['output_key_file']
@@ -90,7 +89,7 @@ class FastaGenerator(metaclass=ABCMeta):
         return wildtype_subsequence, mutation_start_subsequence
 
     def execute(self):
-        peptide_sequence_length = self.peptide_sequence_length
+        peptide_sequence_length = self.epitope_length * 2 - 1
         reader                  = open(self.input_file, 'r')
         tsvin                   = csv.DictReader(reader, delimiter='\t')
         fasta_sequences         = OrderedDict()
@@ -211,15 +210,14 @@ class FastaGenerator(metaclass=ABCMeta):
 
 class FusionFastaGenerator(FastaGenerator):
     def execute(self):
-        peptide_sequence_length = self.peptide_sequence_length
         reader                  = open(self.input_file, 'r')
         tsvin                   = csv.DictReader(reader, delimiter='\t')
         fasta_sequences         = OrderedDict()
+        one_flanking_sequence_length = self.epitope_length - 1
         for line in tsvin:
             variant_type = line['variant_type']
             position     = int(line['protein_position'])
             sequence     = line['fusion_amino_acid_sequence']
-            one_flanking_sequence_length = self.determine_flanking_sequence_length(len(sequence), peptide_sequence_length, line)
             if position < one_flanking_sequence_length:
                 start_position = 0
             else:
