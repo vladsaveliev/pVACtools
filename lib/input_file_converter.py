@@ -180,7 +180,7 @@ class VcfConverter(InputFileConverter):
 
         coverage = {}
         for variant_type in ['snvs', 'indels']:
-            for data_type in ['normal', 'tdna', 'trna']:
+            for data_type in ['trna']:
                 coverage_file_name = '_'.join([data_type, variant_type, 'coverage_file'])
                 coverage_file = getattr(self, coverage_file_name)
                 if coverage_file is not None:
@@ -240,25 +240,26 @@ class VcfConverter(InputFileConverter):
                     variant_type = 'snvs'
                     ref_base = reference
                     var_base = alt
+
                 coverage_for_entry = {}
-                for coverage_type in ['normal', 'tdna', 'trna']:
-                    coverage_for_entry[coverage_type + '_depth'] = 'NA'
-                    coverage_for_entry[coverage_type + '_vaf'] = 'NA'
-                if variant_type in coverage:
-                    for coverage_type in coverage[variant_type]:
-                        if (
-                            chromosome in coverage[variant_type][coverage_type]
-                            and str(bam_readcount_position) in coverage[variant_type][coverage_type][chromosome]
-                            and ref_base in coverage[variant_type][coverage_type][chromosome][str(bam_readcount_position)]
-                        ):
-                            brct = self.parse_brct_field(coverage[variant_type][coverage_type][chromosome][str(bam_readcount_position)][ref_base])
-                            if ref_base in brct and var_base in brct:
-                                coverage_for_entry[coverage_type + '_depth'] = self.calculate_coverage(int(brct[ref_base]), int(brct[var_base]))
-                                coverage_for_entry[coverage_type + '_vaf']   = self.calculate_vaf(int(brct[ref_base]), int(brct[var_base]))
                 coverage_for_entry['tdna_vaf'] = entry.INFO['TUMOR_AF'] * 100
                 coverage_for_entry['normal_vaf'] = entry.INFO['NORMAL_AF'] * 100
                 coverage_for_entry['tdna_depth'] = entry.INFO['TUMOR_DP']
                 coverage_for_entry['normal_depth'] = entry.INFO['NORMAL_DP']
+
+                coverage_for_entry['trna_depth'] = 'NA'
+                coverage_for_entry['trna_vaf'] = 'NA'
+                if variant_type in coverage:
+                    if (
+                        chromosome in coverage[variant_type]['trna']
+                        and str(bam_readcount_position) in coverage[variant_type]['trna'][chromosome]
+                        and ref_base in coverage[variant_type]['trna'][chromosome][str(bam_readcount_position)]
+                    ):
+                        brct = self.parse_brct_field(coverage[variant_type]['trna'][chromosome][str(bam_readcount_position)][ref_base])
+                        dp = sum(int(v) for v in brct.values())
+                        coverage_for_entry['trna_depth'] = dp
+                        if ref_base in brct and var_base in brct and dp > 0:
+                            coverage_for_entry['trna_vaf'] = int(brct[var_base]) / dp * 100
 
                 transcripts = self.parse_csq_entries_for_allele(entry.INFO['CSQ'], csq_format, alt)
                 if len(transcripts) == 0:
