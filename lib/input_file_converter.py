@@ -255,6 +255,10 @@ class VcfConverter(InputFileConverter):
                             if ref_base in brct and var_base in brct:
                                 coverage_for_entry[coverage_type + '_depth'] = self.calculate_coverage(int(brct[ref_base]), int(brct[var_base]))
                                 coverage_for_entry[coverage_type + '_vaf']   = self.calculate_vaf(int(brct[ref_base]), int(brct[var_base]))
+                coverage_for_entry['tdna_vaf'] = entry.INFO['TUMOR_AF'] * 100
+                coverage_for_entry['normal_vaf'] = entry.INFO['NORMAL_AF'] * 100
+                coverage_for_entry['tdna_depth'] = entry.INFO['TUMOR_DP']
+                coverage_for_entry['normal_depth'] = entry.INFO['NORMAL_DP']
 
                 transcripts = self.parse_csq_entries_for_allele(entry.INFO['CSQ'], csq_format, alt)
                 if len(transcripts) == 0:
