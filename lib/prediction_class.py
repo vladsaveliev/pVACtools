@@ -24,7 +24,7 @@ class IEDB(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def iedb_executable_params(self, args):
+    def iedb_executable_params(self, *args):
         pass
 
     @property
@@ -54,7 +54,10 @@ class IEDB(metaclass=ABCMeta):
         if iedb_executable_path is not None:
             arguments = self.iedb_executable_params(iedb_executable_path, self.iedb_prediction_method, allele, input_file, epitope_length)
             response_fh = tempfile.TemporaryFile()
-            response = run(['/bin/bash', '-l', '-c', 'conda activate pvactools_py27; python {}'.format(arguments)], stdout=response_fh, check=True)
+            response = run(['/bin/bash', '-l', '-c',
+                'PATH=/g/data3/gx8/extras/vlad/miniconda/envs/py2/bin:$PATH; python {}'.format(arguments)],
+                stdout=response_fh, check=True)
+            # response = run('python {}'.format(arguments), shell=True, stdout=response_fh, check=True)
             response_fh.seek(0)
             response_text = self.filter_response(response_fh.read())
             response_fh.close()
