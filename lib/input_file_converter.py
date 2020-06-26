@@ -198,23 +198,23 @@ class VcfConverter(InputFileConverter):
 
     def calculate_coverage_for_entry(self, entry, reference, alt, start, chromosome, genotype):
         coverage_for_entry = {}
-        coverage_for_entry['tdna_depth'] = self.get_depth_from_vcf_genotype(genotype, 'DP')
-        coverage_for_entry['trna_depth'] = self.get_depth_from_vcf_genotype(genotype, 'RDP')
-        alts = list(map(lambda x: str(x) , entry.ALT))
-        coverage_for_entry['tdna_vaf'] = self.get_vaf_from_vcf_genotype(genotype, alts, alt, 'AF', 'AD', 'DP')
-        coverage_for_entry['trna_vaf'] = self.get_vaf_from_vcf_genotype(genotype, alts, alt, 'RAF', 'RAD', 'RDP')
-        if self.normal_sample_name is not None:
-            normal_genotype = entry.genotype(self.normal_sample_name)
-            coverage_for_entry['normal_depth'] = self.get_depth_from_vcf_genotype(normal_genotype, 'DP')
-            coverage_for_entry['normal_vaf'] = self.get_vaf_from_vcf_genotype(normal_genotype, alts, alt, 'AF', 'AD', 'DP')
+        # coverage_for_entry['tdna_depth'] = self.get_depth_from_vcf_genotype(genotype, 'DP')
+        # coverage_for_entry['trna_depth'] = self.get_depth_from_vcf_genotype(genotype, 'RDP')
+        # alts = list(map(lambda x: str(x) , entry.ALT))
+        # coverage_for_entry['tdna_vaf'] = self.get_vaf_from_vcf_genotype(genotype, alts, alt, 'AF', 'AD', 'DP')
+        # coverage_for_entry['trna_vaf'] = self.get_vaf_from_vcf_genotype(genotype, alts, alt, 'RAF', 'RAD', 'RDP')
+        # if self.normal_sample_name is not None:
+        #     normal_genotype = entry.genotype(self.normal_sample_name)
+        #     coverage_for_entry['normal_depth'] = self.get_depth_from_vcf_genotype(normal_genotype, 'DP')
+        #     coverage_for_entry['normal_vaf'] = self.get_vaf_from_vcf_genotype(normal_genotype, alts, alt, 'AF', 'AD', 'DP')
 
         # Vlad:
         coverage_for_entry['tdna_vaf'] = entry.INFO['TUMOR_AF'] * 100
         coverage_for_entry['normal_vaf'] = entry.INFO['NORMAL_AF'] * 100
         coverage_for_entry['tdna_depth'] = entry.INFO['TUMOR_DP']
         coverage_for_entry['normal_depth'] = entry.INFO['NORMAL_DP']
-        coverage_for_entry['trna_depth'] = entry.INFO['RNA_DP']
-        coverage_for_entry['trna_vaf'] = entry.INFO['RNA_AF']
+        coverage_for_entry['trna_depth'] = entry.INFO.get('RNA_DP')
+        coverage_for_entry['trna_vaf'] = entry.INFO.get('RNA_AF')
         # end Vlad
 
         return coverage_for_entry
