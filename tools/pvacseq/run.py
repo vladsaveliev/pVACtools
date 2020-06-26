@@ -1,14 +1,16 @@
 import sys
 import argparse
 import os
-from lib.prediction_class import *
-from lib.pipeline import *
-from lib.run_argument_parser import *
-from lib.post_processor import *
-import lib.call_iedb
-
 import shutil
 import yaml
+import csv
+
+import lib.call_iedb
+from lib.pipeline import Pipeline
+from lib.post_processor import PostProcessor
+from lib.run_argument_parser import PvacseqRunArgumentParser
+from lib.prediction_class import *
+
 
 def define_parser():
     return PvacseqRunArgumentParser().parser
