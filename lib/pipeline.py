@@ -67,7 +67,6 @@ class Pipeline(metaclass=ABCMeta):
         tmp_dir = os.path.join(self.output_dir, 'tmp')
         os.makedirs(tmp_dir, exist_ok=True)
         self.tmp_dir = tmp_dir
-        self.epitope_lengths             = None
 
     def log_dir(self):
         dir = os.path.join(self.output_dir, 'log')
@@ -278,9 +277,9 @@ class Pipeline(metaclass=ABCMeta):
             for a in alleles:
                 for epl in epitope_lengths:
                     if self.input_file_type == 'pvacvector_input_fasta':
-                        split_fasta_file_path = "{}_1-2.{}.tsv".format(self.split_fasta_basename(), epl)
+                        split_fasta_file_path = "{}_1-2.{}.tsv".format(self.split_fasta_basename(epl), epl)
                     else:
-                        split_fasta_file_path = "%s_%s"%(self.split_fasta_basename(), fasta_chunk)
+                        split_fasta_file_path = "%s_%s"%(self.split_fasta_basename(epl), fasta_chunk)
                     if os.path.getsize(split_fasta_file_path) == 0:
                         msg = "Fasta file {} is empty. Skipping".format(split_fasta_file_path)
                         if msg not in warning_messages:
