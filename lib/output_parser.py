@@ -468,7 +468,10 @@ class OutputParser(metaclass=ABCMeta):
                         if tsv_entry[tsv_key] == 'NA':
                             row[row_key] = 'NA'
                         else:
-                            row[row_key] = round(float(tsv_entry[tsv_key]), 3)
+                            try:
+                                row[row_key] = round(float(tsv_entry[tsv_key]), 3)
+                            except:
+                                row[row_key] = 'NA'
                 for (tsv_key, row_key) in zip(['normal_depth', 'tdna_depth', 'trna_depth'], ['Normal Depth', 'Tumor DNA Depth', 'Tumor RNA Depth']):
                     if tsv_key in tsv_entry:
                         row[row_key] = tsv_entry[tsv_key]
