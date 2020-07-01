@@ -370,7 +370,7 @@ class VcfConverter(InputFileConverter):
                     else:
                         output_row['codon_change'] = 'NA'
 
-                    for (tag, key, comparison_fields) in zip(['TX', 'GX'], ['transcript_expression', 'gene_expression'], [[transcript_name], [ensembl_gene_id, gene_name]]):
+                    for (tag, key, comparison_fields) in zip(['TX', 'TX'], ['transcript_expression', 'gene_expression'], [[transcript_name], [ensembl_gene_id, gene_name]]):
                         if tag in self.vcf_reader.formats:
                             if tag in genotype.data._asdict():
                                 expressions = genotype[tag]
