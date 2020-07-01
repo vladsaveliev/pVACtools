@@ -463,7 +463,8 @@ class OutputParser(metaclass=ABCMeta):
                         row["%s MT Score" % pretty_method] = mt_scores[method]
                     else:
                         row["%s MT Score" % pretty_method] = 'NA'
-                for (tsv_key, row_key) in zip(['gene_expression', 'transcript_expression', 'normal_vaf', 'tdna_vaf', 'trna_vaf'], ['Gene Expression', 'Transcript Expression', 'Normal VAF', 'Tumor DNA VAF', 'Tumor RNA VAF']):
+                for (tsv_key, row_key) in zip(['gene_expression', 'transcript_expression', 'normal_vaf', 'tdna_vaf', 'trna_vaf'],
+                                              ['Gene Expression', 'Transcript Expression', 'Normal VAF', 'Tumor DNA VAF', 'Tumor RNA VAF']):
                     if tsv_key in tsv_entry:
                         if tsv_entry[tsv_key] == 'NA':
                             row[row_key] = 'NA'
@@ -472,7 +473,8 @@ class OutputParser(metaclass=ABCMeta):
                                 row[row_key] = round(float(tsv_entry[tsv_key]), 3)
                             except:
                                 row[row_key] = 'NA'
-                for (tsv_key, row_key) in zip(['normal_depth', 'tdna_depth', 'trna_depth'], ['Normal Depth', 'Tumor DNA Depth', 'Tumor RNA Depth']):
+                for (tsv_key, row_key) in zip(['normal_depth', 'tdna_depth', 'trna_depth'],
+                                              ['Normal Depth', 'Tumor DNA Depth', 'Tumor RNA Depth']):
                     if tsv_key in tsv_entry:
                         row[row_key] = tsv_entry[tsv_key]
                 if self.sample_name:
