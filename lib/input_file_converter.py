@@ -207,16 +207,6 @@ class VcfConverter(InputFileConverter):
         #     normal_genotype = entry.genotype(self.normal_sample_name)
         #     coverage_for_entry['normal_depth'] = self.get_depth_from_vcf_genotype(normal_genotype, 'DP')
         #     coverage_for_entry['normal_vaf'] = self.get_vaf_from_vcf_genotype(normal_genotype, alts, alt, 'AF', 'AD', 'DP')
-
-        # Vlad:
-        coverage_for_entry['tdna_vaf'] = entry.INFO['TUMOR_AF'] * 100
-        coverage_for_entry['normal_vaf'] = entry.INFO['NORMAL_AF'] * 100
-        coverage_for_entry['tdna_depth'] = entry.INFO['TUMOR_DP']
-        coverage_for_entry['normal_depth'] = entry.INFO['NORMAL_DP']
-        coverage_for_entry['trna_depth'] = entry.INFO.get('RNA_DP')
-        coverage_for_entry['trna_vaf'] = entry.INFO.get('RNA_AF')
-        # end Vlad
-
         return coverage_for_entry
 
     def write_proximal_variant_entries(self, entry, alt, transcript_name, index):
@@ -369,22 +359,6 @@ class VcfConverter(InputFileConverter):
                         output_row['codon_change'] =  transcript['Codons']
                     else:
                         output_row['codon_change'] = 'NA'
-
-                    for (tag, key, comparison_fields) in zip(['TX', 'TX'], ['transcript_expression', 'gene_expression'], [[transcript_name], [ensembl_gene_id, gene_name]]):
-                        if tag in self.vcf_reader.formats:
-                            if tag in genotype.data._asdict():
-                                expressions = genotype[tag]
-                                if isinstance(expressions, list):
-                                    for expression in expressions:
-                                        (item, value) = expression.split('|')
-                                        for comparison_field in comparison_fields:
-                                            if item == comparison_field:
-                                                output_row[key] = value
-                                elif expressions is not None:
-                                    (item, value) = expressions.split('|')
-                                    for comparison_field in comparison_fields:
-                                        if item == comparison_field:
-                                            output_row[key] = value
 
                     output_row.update(coverage_for_entry)
 

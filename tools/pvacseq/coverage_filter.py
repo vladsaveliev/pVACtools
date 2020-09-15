@@ -72,15 +72,6 @@ def main(args_input = sys.argv[1:]):
 #Gene Expression
 #Transcript Expression
     filter_criteria = []
-    filter_criteria.append({'column': "Normal_Depth", 'operator': '>=', 'threshold': args.normal_cov})
-    filter_criteria.append({'column': "Normal_VAF", 'operator': '<=', 'threshold': args.normal_vaf})
-    filter_criteria.append({'column': "Tumor_DNA_Depth", 'operator': '>=', 'threshold': args.tdna_cov})
-    filter_criteria.append({'column': "Tumor_DNA_VAF", 'operator': '>=', 'threshold': args.tdna_vaf})
-    filter_criteria.append({'column': "Tumor_RNA_Depth", 'operator': '>=', 'threshold': args.trna_cov})
-    filter_criteria.append({'column': "Tumor_RNA_VAF", 'operator': '>=', 'threshold': args.trna_vaf})
-    filter_criteria.append({'column': "Gene_Expression", 'operator': '>=', 'threshold': args.expn_val})
-    filter_criteria.append({'column': "Transcript_Expression", 'operator': '>=', 'threshold': args.expn_val})
-
     Filter(args.input_file, args.output_file, filter_criteria, args.exclude_NAs).execute()
 
 if __name__ == "__main__":
