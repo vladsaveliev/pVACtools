@@ -82,17 +82,6 @@ class VcfConverter(InputFileConverter):
             self.somatic_vcf_reader = vcf.Reader(self.somatic_vcf_fh)
         self.reader = open(self.input_file, mode)
         self.vcf_reader = vcf.Reader(self.reader)
-        if len(self.vcf_reader.samples) > 1:
-            if not self.sample_name:
-                sys.exit("VCF contains more than one sample but sample_name is not set.")
-            elif self.sample_name not in self.vcf_reader.samples:
-                sys.exit("sample_name {} not a sample ID in the #CHROM header of VCF {}".format(self.sample_name, self.input_file))
-            if self.normal_sample_name is not None and self.normal_sample_name not in self.vcf_reader.samples:
-                sys.exit("normal_sample_name {} not a sample ID in the #CHROM header of VCF {}".format(self.normal_sample_name, self.input_file))
-        elif len(self.vcf_reader.samples) ==  0:
-            sys.exit("VCF doesn't contain any sample genotype information.")
-        else:
-            self.sample_name = self.vcf_reader.samples[0]
         self.writer = open(self.output_file, 'w')
         self.tsv_writer = csv.DictWriter(self.writer, delimiter='\t', fieldnames=self.output_headers(), restval='NA')
         self.tsv_writer.writeheader()
@@ -196,7 +185,7 @@ class VcfConverter(InputFileConverter):
                 vaf = 'NA'
         return vaf
 
-    def calculate_coverage_for_entry(self, entry, reference, alt, start, chromosome, genotype):
+    def calculate_coverage_for_entry(self, entry, reference, alt, start, chromosome):
         coverage_for_entry = {}
         # coverage_for_entry['tdna_depth'] = self.get_depth_from_vcf_genotype(genotype, 'DP')
         # coverage_for_entry['trna_depth'] = self.get_depth_from_vcf_genotype(genotype, 'RDP')
@@ -207,6 +196,14 @@ class VcfConverter(InputFileConverter):
         #     normal_genotype = entry.genotype(self.normal_sample_name)
         #     coverage_for_entry['normal_depth'] = self.get_depth_from_vcf_genotype(normal_genotype, 'DP')
         #     coverage_for_entry['normal_vaf'] = self.get_vaf_from_vcf_genotype(normal_genotype, alts, alt, 'AF', 'AD', 'DP')
+        coverage_for_entry['tdna_vaf'] = entry.INFO['TUMOR_AF'] * 100
+        coverage_for_entry['normal_vaf'] = entry.INFO['NORMAL_AF'] * 100
+        coverage_for_entry['tdna_depth'] = entry.INFO['TUMOR_DP']
+        coverage_for_entry['normal_depth'] = entry.INFO['NORMAL_DP']
+        coverage_for_entry['trna_depth'] = entry.INFO.get('RNA_DP')
+        coverage_for_entry['trna_vaf'] = entry.INFO.get('RNA_AF') * 100
+        coverage_for_entry['transcript_expression'] = entry.INFO.get('ExpressionTPM')
+        coverage_for_entry['gene_expression'] = entry.INFO.get('ExpressionTPM')
         return coverage_for_entry
 
     def write_proximal_variant_entries(self, entry, alt, transcript_name, index):
@@ -266,11 +263,6 @@ class VcfConverter(InputFileConverter):
             reference  = entry.REF
             alts       = entry.ALT
 
-            genotype = entry.genotype(self.sample_name)
-            if genotype.gt_type is None or genotype.gt_type == 0:
-                #The genotype is uncalled or hom_ref
-                continue
-
             filt = entry.FILTER
             if self.pass_only and not (filt is None or len(filt) == 0):
                 continue
@@ -281,10 +273,8 @@ class VcfConverter(InputFileConverter):
             alleles_dict = self.csq_parser.resolve_alleles(entry)
             for alt in alts:
                 alt = str(alt)
-                if genotype.gt_bases and alt not in genotype.gt_bases.split('/'):
-                    continue
 
-                coverage_for_entry = self.calculate_coverage_for_entry(entry, reference, alt, start, chromosome, genotype)
+                coverage_for_entry = self.calculate_coverage_for_entry(entry, reference, alt, start, chromosome)
 
                 transcripts = self.csq_parser.parse_csq_entries_for_allele(entry.INFO['CSQ'], alt)
                 if len(transcripts) == 0:
@@ -359,6 +349,19 @@ class VcfConverter(InputFileConverter):
                         output_row['codon_change'] =  transcript['Codons']
                     else:
                         output_row['codon_change'] = 'NA'
+
+                    for (tag, key, feature_names) in zip(['TranscriptExprTPM', 'GeneExprTPM'], ['transcript_expression', 'gene_expression'], [[transcript_name], [ensembl_gene_id, gene_name]]):
+                        expressions = entry.INFO.get(tag)
+                        if expressions:
+                            if isinstance(expressions, list):
+                                for expression in expressions:
+                                    (feature_name, value) = expression.split('|')
+                                    if feature_name in feature_names:
+                                        output_row[key] = value
+                            elif expressions is not None:
+                                (feature_name, value) = expressions.split('|')
+                                if feature_name in feature_names:
+                                    output_row[key] = value
 
                     output_row.update(coverage_for_entry)
 
