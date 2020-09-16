@@ -423,12 +423,14 @@ class Pipeline(metaclass=ABCMeta):
         total_row_count = self.tsv_entry_count()
         if total_row_count == 0:
             if self.input_file_type == 'vcf':
-                sys.exit("The TSV file is empty. Please check that the input VCF contains missense, inframe indel, or frameshift mutations.")
+                status_message("The TSV file is empty. Please check that the input VCF contains missense, inframe indel, or frameshift mutations.")
             elif self.input_file_type == 'bedpe':
                 if os.path.isfile(self.input_file):
-                    sys.exit("The TSV file is empty. Please check that the input bedpe file contains fusion entries.")
+                    status_message("The TSV file is empty. Please check that the input bedpe file contains fusion entries.")
                 elif os.path.isdir(self.input_file):
-                    sys.exit("The TSV file is empty. Please check that the input AGfusion directory contains fusion entries with `*_protein.fa` files. Fusion entries without this file cannot be processed by pVACfuse.")
+                    status_message("The TSV file is empty. Please check that the input AGfusion directory contains fusion entries with `*_protein.fa` files. Fusion entries without this file cannot be processed by pVACfuse.")
+            sys.exit(0)
+
         chunks = self.split_tsv_file(total_row_count)
 
         for epl in self.epitope_lengths:
