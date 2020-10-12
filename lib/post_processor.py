@@ -28,7 +28,7 @@ class PostProcessor:
     def execute(self):
         self.calculate_manufacturability()
         self.execute_binding_filter()
-        self.execute_coverage_filter()
+        # self.execute_coverage_filter()
         self.execute_transcript_support_level_filter()
         self.execute_top_score_filter()
         self.call_net_chop()
